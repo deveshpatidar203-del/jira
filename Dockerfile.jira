@@ -1,0 +1,20 @@
+FROM atlassian/jira-software:9.12.36
+
+USER root
+
+# MySQL Connector/J
+RUN curl -fL \
+    https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar \
+    -o /opt/atlassian/jira/lib/mysql-connector-j-8.0.33.jar \
+    && chown jira:jira /opt/atlassian/jira/lib/mysql-connector-j-8.0.33.jar \
+    && chmod 644 /opt/atlassian/jira/lib/mysql-connector-j-8.0.33.jar
+
+# Java agent
+COPY atlassian-agent.jar /opt/atlassian/jira/atlassian-agent.jar
+
+RUN chown jira:jira /opt/atlassian/jira/atlassian-agent.jar
+
+RUN echo 'export CATALINA_OPTS="-javaagent:/opt/atlassian/jira/atlassian-agent.jar ${CATALINA_OPTS}"' \
+    >> /opt/atlassian/jira/bin/setenv.sh
+
+USER jira
